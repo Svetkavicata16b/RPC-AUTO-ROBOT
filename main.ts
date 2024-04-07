@@ -1,11 +1,3 @@
-function градуси (servo: number, добавени_градуси: number) {
-    завъртяно_servo_градуси = servo + добавени_градуси
-    if (!(завъртяно_servo_градуси < 0 || завъртяно_servo_градуси > 180)) {
-        return завъртяно_servo_градуси
-    } else {
-        return servo
-    }
-}
 radio.onReceivedString(function (receivedString) {
     reseave_command = parseFloat(receivedString)
     move(reseave_command)
@@ -13,32 +5,49 @@ radio.onReceivedString(function (receivedString) {
 input.onButtonPressed(Button.B, function () {
     again_or_no = 1
 })
+function degrees (servo: number, добавени_градуси: number) {
+    rotate_servo_degrees = servo + добавени_градуси
+    if (!(rotate_servo_degrees < 0 || rotate_servo_degrees > 180)) {
+        return rotate_servo_degrees
+    } else {
+        return servo
+    }
+}
 function move (command: number) {
     if (command & S1_RIGHT) {
-        s0 = градуси(s0, 10)
+        s0 = degrees(s0, -10)
+        basic.pause(200)
     } else if (command & S1_LEFT) {
-        s0 = градуси(s0, -10)
+        s0 = degrees(s0, 10)
+        basic.pause(200)
     }
     if (command & S2_BACK) {
-        s1 = градуси(s1, 10)
+        s1 = degrees(s1, -10)
+        basic.pause(200)
     } else if (command & S2_FORWARD) {
-        s1 = градуси(s1, -10)
+        s1 = degrees(s1, 10)
+        basic.pause(200)
     }
     if (command & S3_BACK) {
-        s2 = градуси(s2, 10)
+        s2 = degrees(s2, -10)
+        basic.pause(200)
     } else if (command & S3_FORWARD) {
-        s2 = градуси(s2, -10)
+        s2 = degrees(s2, 10)
+        basic.pause(200)
     }
     if (command & PINCH_CLOSE) {
         if (!(true_false)) {
             wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 20)
             true_false = 1
+            basic.pause(200)
         } else {
             wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
             true_false = 0
+            basic.pause(200)
         }
     } else if (command & PINCH_OPEN) {
         wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
+        basic.pause(200)
     }
     if (command & CAR_FORWARD) {
         wuKong.setAllMotor(50, 50)
@@ -57,6 +66,9 @@ function move (command: number) {
         wuKong.setAllMotor(-50, 50)
         basic.pause(200)
         wuKong.stopAllMotor()
+    }
+    if (command == 0 && again_or_no == 1) {
+        basic.pause(200)
     }
     if (again_or_no == 2) {
         command_list.push(command)
@@ -84,7 +96,7 @@ function move (command: number) {
         }
     }
 }
-let завъртяно_servo_градуси = 0
+let rotate_servo_degrees = 0
 let strip: neopixel.Strip = null
 let command_list: number[] = []
 let true_false = 0
@@ -93,15 +105,15 @@ let s2 = 0
 let s1 = 0
 let s0 = 0
 let reseave_command = 0
-let индекс = 0
-let list2: number[] = []
-reseave_command = 0
 let stop = 0
+let list2: number[] = []
+let index = 0
+reseave_command = 0
 wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S0, 90)
 s0 = 90
-wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S1, 180)
-s1 = 180
-wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S2, 80)
+wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S1, 0)
+s1 = 0
+wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S2, 90)
 s2 = 90
 wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
 again_or_no = 0
