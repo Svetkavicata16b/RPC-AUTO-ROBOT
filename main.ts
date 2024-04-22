@@ -1,3 +1,12 @@
+function reset_position () {
+    wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S0, 90)
+    s0 = 90
+    wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S1, 0)
+    s1 = 0
+    wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S2, 90)
+    s2 = 90
+    wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
+}
 radio.onReceivedString(function (receivedString) {
     reseave_command = parseFloat(receivedString)
     move(reseave_command)
@@ -5,8 +14,8 @@ radio.onReceivedString(function (receivedString) {
 input.onButtonPressed(Button.B, function () {
     again_or_no = 1
 })
-function degrees (servo: number, добавени_градуси: number) {
-    rotate_servo_degrees = servo + добавени_градуси
+function degrees (servo: number, add_degrees: number) {
+    rotate_servo_degrees = servo + add_degrees
     if (!(rotate_servo_degrees < 0 || rotate_servo_degrees > 180)) {
         return rotate_servo_degrees
     } else {
@@ -36,13 +45,13 @@ function move (command: number) {
         basic.pause(200)
     }
     if (command & PINCH_CLOSE) {
-        if (!(true_false)) {
+        if (!(is_pinch_closed)) {
             wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 20)
-            true_false = 1
+            is_pinch_closed = 1
             basic.pause(200)
         } else {
             wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
-            true_false = 0
+            is_pinch_closed = 0
             basic.pause(200)
         }
     } else if (command & PINCH_OPEN) {
@@ -66,6 +75,9 @@ function move (command: number) {
         wuKong.setAllMotor(-50, 50)
         basic.pause(200)
         wuKong.stopAllMotor()
+    }
+    if (command & RESET_POSITION) {
+        reset_position()
     }
     if (command == 0 && again_or_no == 1) {
         basic.pause(200)
@@ -97,25 +109,18 @@ function move (command: number) {
     }
 }
 let rotate_servo_degrees = 0
-let strip: neopixel.Strip = null
-let command_list: number[] = []
-let true_false = 0
-let again_or_no = 0
 let s2 = 0
 let s1 = 0
 let s0 = 0
+let strip: neopixel.Strip = null
+let command_list: number[] = []
+let is_pinch_closed = 0
+let again_or_no = 0
 let reseave_command = 0
 let stop = 0
 let list2: number[] = []
 let index = 0
 reseave_command = 0
-wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S0, 90)
-s0 = 90
-wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S1, 0)
-s1 = 0
-wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S2, 90)
-s2 = 90
-wuKong.setServoAngle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
 again_or_no = 0
 let S1_RIGHT = 1
 let S1_LEFT = 2
@@ -132,8 +137,10 @@ let CAR_LEFT = 2048
 let AGAIN = 4096
 let LISTEN = 8192
 let STOP_LISTEN = 16384
-true_false = 0
+let RESET_POSITION = 32768
+is_pinch_closed = 0
 command_list = []
+reset_position()
 radio.setGroup(1)
 strip = neopixel.create(DigitalPin.P16, 4, NeoPixelMode.RGB)
 strip.showColor(neopixel.colors(NeoPixelColors.Black))

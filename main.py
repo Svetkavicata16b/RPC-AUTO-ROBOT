@@ -1,3 +1,13 @@
+def reset_position():
+    global s0, s1, s2
+    wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S0, 90)
+    s0 = 90
+    wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S1, 0)
+    s1 = 0
+    wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S2, 90)
+    s2 = 90
+    wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
+
 def on_received_string(receivedString):
     global reseave_command
     reseave_command = parse_float(receivedString)
@@ -9,15 +19,15 @@ def on_button_pressed_b():
     again_or_no = 1
 input.on_button_pressed(Button.B, on_button_pressed_b)
 
-def degrees(servo: number, добавени_градуси: number):
+def degrees(servo: number, add_degrees: number):
     global rotate_servo_degrees
-    rotate_servo_degrees = servo + добавени_градуси
+    rotate_servo_degrees = servo + add_degrees
     if not (rotate_servo_degrees < 0 or rotate_servo_degrees > 180):
         return rotate_servo_degrees
     else:
         return servo
 def move(command: number):
-    global s0, s1, s2, true_false, again_or_no, command_list
+    global s0, s1, s2, is_pinch_closed, again_or_no, command_list
     if command & S1_RIGHT:
         s0 = degrees(s0, -10)
         basic.pause(200)
@@ -37,13 +47,13 @@ def move(command: number):
         s2 = degrees(s2, 10)
         basic.pause(200)
     if command & PINCH_CLOSE:
-        if not (true_false):
+        if not (is_pinch_closed):
             wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 20)
-            true_false = 1
+            is_pinch_closed = 1
             basic.pause(200)
         else:
             wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
-            true_false = 0
+            is_pinch_closed = 0
             basic.pause(200)
     elif command & PINCH_OPEN:
         wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
@@ -64,6 +74,8 @@ def move(command: number):
         wuKong.set_all_motor(-50, 50)
         basic.pause(200)
         wuKong.stop_all_motor()
+    if command & RESET_POSITION:
+        reset_position()
     if command == 0 and again_or_no == 1:
         basic.pause(200)
     if again_or_no == 2:
@@ -85,25 +97,18 @@ def move(command: number):
             again_or_no = 0
             strip.show_color(neopixel.colors(NeoPixelColors.BLACK))
 rotate_servo_degrees = 0
-strip: neopixel.Strip = None
-command_list: List[number] = []
-true_false = 0
-again_or_no = 0
 s2 = 0
 s1 = 0
 s0 = 0
+strip: neopixel.Strip = None
+command_list: List[number] = []
+is_pinch_closed = 0
+again_or_no = 0
 reseave_command = 0
 stop = 0
 list2: List[number] = []
 index = 0
 reseave_command = 0
-wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S0, 90)
-s0 = 90
-wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S1, 0)
-s1 = 0
-wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S2, 90)
-s2 = 90
-wuKong.set_servo_angle(wuKong.ServoTypeList._180, wuKong.ServoList.S3, 90)
 again_or_no = 0
 S1_RIGHT = 1
 S1_LEFT = 2
@@ -120,8 +125,10 @@ CAR_LEFT = 2048
 AGAIN = 4096
 LISTEN = 8192
 STOP_LISTEN = 16384
-true_false = 0
+RESET_POSITION = 32768
+is_pinch_closed = 0
 command_list = []
+reset_position()
 radio.set_group(1)
 strip = neopixel.create(DigitalPin.P16, 4, NeoPixelMode.RGB)
 strip.show_color(neopixel.colors(NeoPixelColors.BLACK))
